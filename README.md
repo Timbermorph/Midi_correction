@@ -1,23 +1,31 @@
+# 🎹 MIDI Processing Pipeline
+
+This repository provides a set of scripts to process expressive piano performance recordings by:
+
+- Extracting audio from video recordings
+- Transcribing audio into MIDI using [`transkun`](https://github.com/yujiany/transkun)
+- Aligning ground truth MIDI to transcribed MIDI using anchor matching
+- Rendering MIDI back to audio using FluidSynth
+- Replacing video audio tracks with aligned MIDI audio
+- Visualizing note-level overlaps between ground truth and transcription
+
+---
 🛠️ Usage
 1. Align Ground Truth MIDI
-Use correction.py to align a ground truth MIDI file (e.g., recorded from piano) to a transkun-transcribed MIDI file based on first and last anchor notes.
 
-bash
 python correction.py \
   --gt "/path/to/original_gt.mid" \
   --transkun "/path/to/transkun_output.mid" \
   --output "/path/to/aligned_output.mid"
-2. Convert MIDI to Audio (WAV)
-Use toaudio.py to render an aligned MIDI file into an audio waveform using FluidSynth (default 44.1kHz).
 
-bash
+2. Convert MIDI to Audio (WAV)
+
 python toaudio.py \
   --midi "/path/to/aligned_output.mid" \
   --output "/path/to/output_audio.wav"
-3. Visualize MIDI Overlap
-Use overlap.py to compare the transkun MIDI and the aligned GT MIDI at the note level. It will generate a color-coded image showing matched/unmatched notes across time or frame index.
 
-bash
+3. Visualize Overlap Between Two MIDI Files
+
 python overlap.py \
   --transkun "/path/to/transkun.mid" \
   --aligned "/path/to/aligned.mid" \
@@ -26,3 +34,19 @@ python overlap.py \
   --end 80 \
   --display_mode frame \
   --fps 25
+
+4. Batch Processing of All Cases
+
+python run_all.py
+
+📦 Output Folder Structure (per case)
+
+caseX/
+├── audio.mp3              # Extracted from original MP4
+├── transkun_output.mid    # MIDI from transkun
+├── aligned_output.mid     # Time-aligned ground truth MIDI
+├── aligned_output.wav     # Synthesized audio from aligned MIDI
+├── output_aligned.mp4     # Final video with aligned audio
+└── overlap.png            # Note-level comparison visualization
+
+
