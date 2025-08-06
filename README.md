@@ -3,7 +3,7 @@
 This repository provides a set of scripts to process expressive piano performance recordings by:
 
 - Extracting audio from video recordings
-- Transcribing audio into MIDI using [`transkun`](https://github.com/yujiany/transkun)
+- Transcribing audio into MIDI using [`transkun`](https://github.com/Yujia-Yan/Transkun))
 - Aligning ground truth MIDI to transcribed MIDI using anchor matching
 - Rendering MIDI back to audio using FluidSynth
 - Replacing video audio tracks with aligned MIDI audio
