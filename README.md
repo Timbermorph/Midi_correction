@@ -29,7 +29,7 @@ python toaudio.py \
   --output "/path/to/output_audio.wav"
 ```
 
-3. Visualize Overlap Between Two MIDI Files
+3. Visualize Overlap Between Two MIDI Files(can decide to chosse display_mode in time or frame, and also the start time and end time, if set it to None, the result will be showing the whole piece.)
 
 ```bash
 python overlap.py \
