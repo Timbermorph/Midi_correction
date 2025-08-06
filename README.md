@@ -23,12 +23,15 @@ python correction.py \
 
 2. Convert MIDI to Audio (WAV)
 
+```bash
 python toaudio.py \
   --midi "/path/to/aligned_output.mid" \
   --output "/path/to/output_audio.wav"
+```
 
 3. Visualize Overlap Between Two MIDI Files
 
+```bash
 python overlap.py \
   --transkun "/path/to/transkun.mid" \
   --aligned "/path/to/aligned.mid" \
@@ -37,10 +40,13 @@ python overlap.py \
   --end 80 \
   --display_mode frame \
   --fps 25
+```
 
 4. Batch Processing of All Cases
 
+```bash
 python run_all.py
+```
 
 📦 Output Folder Structure (per case)
 
