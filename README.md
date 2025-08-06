@@ -13,10 +13,13 @@ This repository provides a set of scripts to process expressive piano performanc
 🛠️ Usage
 1. Align Ground Truth MIDI
 
+
+```bash
 python correction.py \
   --gt "/path/to/original_gt.mid" \
   --transkun "/path/to/transkun_output.mid" \
   --output "/path/to/aligned_output.mid"
+```
 
 2. Convert MIDI to Audio (WAV)
 
