@@ -3,9 +3,9 @@ import pygame
 import time
 
 # ????
-midi_path1 = "/storage/user/ljia/folder_for_share/cam00045D6F85000_transcribed.mid"
-midi_path2 = "/storage/user/ljia/folder_for_share/groundtruth_aligned_linear.mid"
-merged_path = "/storage/user/ljia/folder_for_share/merged2.mid"
+midi_path1 = "/storage/user/ljia/folder_for_share/output.mid"
+midi_path2 = "/storage/user/ljia/folder_for_share/case6/transkun_output.mid"
+merged_path = "/storage/user/ljia/folder_for_share/merged.mid"
 
 # ???? MIDI ??
 midi1 = pretty_midi.PrettyMIDI(midi_path1)

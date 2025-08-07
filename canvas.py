@@ -1,10 +1,11 @@
 import pretty_midi
 import matplotlib.pyplot as plt
 
-def extract_notes(mid_path, max_time=None):
+def extract_notes(mid_path, time_range=None):
     """
     Extract note tuples (start, end, pitch) from a MIDI file.
-    If max_time is specified, only notes before that time are included.
+    If time_range = (start, end), only notes within this range are included.
+    If time_range = None, return all notes.
     """
     midi = pretty_midi.PrettyMIDI(mid_path)
     notes = []
@@ -12,8 +13,12 @@ def extract_notes(mid_path, max_time=None):
         if inst.is_drum:
             continue  # skip drum tracks
         for n in inst.notes:
-            if max_time is None or n.start <= max_time:
+            if time_range is None:
                 notes.append((n.start, n.end, n.pitch))
+            else:
+                t0, t1 = time_range
+                if t0 <= n.start <= t1:
+                    notes.append((n.start, n.end, n.pitch))
     return notes
 
 def plot_notes(notes, ax, label, color='black'):
@@ -29,21 +34,26 @@ def plot_notes(notes, ax, label, color='black'):
     ax.set_ylim(20, 100)  # typical piano pitch range
     ax.grid(True)
 
-# File paths for ground truth MIDI and predicted MIDI
-# gt_path = "/storage/user/ljia/folder_for_share/2025-06-19/MIDI-Unprocessed_SMF_02_R1_2004_01-05_ORIG_MID--AUDIO_02_R1_2004_05_Track05_wav.midi/MIDI-Unprocessed_SMF_02_R1_2004_01-05_ORIG_MID--AUDIO_02_R1_2004_05_Track05_wav.midi"
-gt_path = "/storage/user/ljia/folder_for_share/groundtruth_aligned_linear.mid"
-pred_path = "/storage/user/ljia/folder_for_share/cam00045D6F85000_transcribed.mid"
+# ========== File paths ==========
+pred_path = "/storage/user/ljia/folder_for_share/case6/transkun_output.mid"
+gt_path   = "/storage/user/ljia/folder_for_share/output.mid"
 
-# Extract notes from both files (use max_time=None for full duration)
-gt_notes = extract_notes(gt_path, max_time=None)
-pred_notes = extract_notes(pred_path, max_time=None)
+# ========== Time settings ==========
+# Set to None to use full length, or specify a range like (0, 30)
+gt_time_range   = (480, 500)  # or e.g. (0, 20)
+pred_time_range = (480, 500)  # or e.g. (0, 20)
 
-# Plot both tracks for comparison
+# ========== Extract notes ==========
+gt_notes   = extract_notes(gt_path, gt_time_range)
+pred_notes = extract_notes(pred_path, pred_time_range)
+
+# ========== Plot both tracks ==========
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 8), sharex=True)
 plot_notes(gt_notes, ax1, "Ground Truth MIDI", color='green')
 plot_notes(pred_notes, ax2, "Transkun Output MIDI", color='red')
 plt.tight_layout()
 
-# Save the figure to the current directory
-plt.savefig("midi_compare_10_whole.png", dpi=300)
-print("Saved: midi_compare_10.png")
+# ========== Save the figure ==========
+output_img = "midi_compare_segment.png"
+plt.savefig(output_img, dpi=300)
+print(f"Saved: {output_img}")

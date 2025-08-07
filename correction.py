@@ -17,27 +17,54 @@ def align_gt_to_transkun(gt_midi_path, transkun_midi_path, output_path, epsilon=
     gt_notes, gt_midi = extract_notes(gt_midi_path)
     transkun_notes, _ = extract_notes(transkun_midi_path)
 
-    # === First Anchor
-    first_gt_time = min(n[0] for n in gt_notes)
-    gt_first_pitches = [pitch for start, end, pitch in gt_notes if abs(start - first_gt_time) < epsilon]
-    print(f"[GT First Anchor] Time = {first_gt_time:.3f}, Pitches = {gt_first_pitches}")
+    n_attempts = 5  # You can change this
+    gt_time_pitch_groups = []
+    seen_times = set()
 
-    first_aligned_time = None
-    transkun_notes_sorted = sorted(transkun_notes, key=lambda x: x[0])
-
-    for note in transkun_notes_sorted:
-        current_time = note[0]
-        group = [n for n in transkun_notes if abs(n[0] - current_time) < epsilon]
-        group_pitches = [n[2] for n in group]
-        match_count = sum(1 for p in gt_first_pitches if p in group_pitches)
-        match_ratio = match_count / len(gt_first_pitches)
-        if match_ratio >= 0.8:
-            first_aligned_time = current_time
-            print(f"[First Anchor Match] Transkun time = {current_time:.3f}, Pitches at this time = {group_pitches}")
+    # Step 1: Extract top-N GT pitch groups
+    for note in sorted(gt_notes, key=lambda x: x[0]):
+        t = note[0]
+        if all(abs(t - seen) >= epsilon for seen in seen_times):
+            group = [pitch for s, e, pitch in gt_notes if abs(s - t) < epsilon]
+            gt_time_pitch_groups.append((t, group))
+            seen_times.add(t)
+        if len(gt_time_pitch_groups) >= n_attempts:
             break
 
-    if first_aligned_time is None:
+    transkun_notes_sorted = sorted(transkun_notes, key=lambda x: x[0])
+    best_anchor = None  # (gt_time, group, trans_time)
+
+    print("\n===== GT PITCH GROUPS (Top N) =====")
+    for i, (t_gt, gt_group) in enumerate(gt_time_pitch_groups):
+        print(f"Group {i+1}: Time = {t_gt:.3f}, GT Pitches = {sorted(gt_group)}")
+        matched = False
+        for note in transkun_notes_sorted:
+            t_trans = note[0]
+            group = [n for n in transkun_notes if abs(n[0] - t_trans) < epsilon]
+            group_pitches = [n[2] for n in group]
+            match_count = sum(1 for p in gt_group if p in group_pitches)
+            match_ratio = match_count / len(gt_group)
+            if match_ratio >= 0.4:
+                print(f"Matched in Transkun at {t_trans:.3f}, Pitches = {sorted(group_pitches)}, Match Ratio = {match_ratio:.2f}")
+                matched = True
+                if best_anchor is None or t_trans < best_anchor[2]:
+                    best_anchor = (t_gt, gt_group, t_trans, i+1, match_ratio, group_pitches)
+                break  # only first match for each group
+        if not matched:
+            print(f"No match found in Transkun.")
+
+    # Step 3: Choose best match
+    if best_anchor is None:
         raise RuntimeError("Failed to find matching first anchor in Transkun MIDI.")
+
+    first_gt_time, gt_first_pitches, first_aligned_time, group_idx, match_ratio, matched_pitches = best_anchor
+    print("\n===== SELECTED FIRST ANCHOR =====")
+    print(f"Selected Group: #{group_idx}")
+    print(f"GT Time        : {first_gt_time:.3f}")
+    print(f"GT Pitches     : {sorted(gt_first_pitches)}")
+    print(f"Matched Time   : {first_aligned_time:.3f} (in Transkun)")
+    print(f"Matched Pitches: {sorted(matched_pitches)}")
+    print(f"Match Ratio    : {match_ratio:.2f}")
 
     # === Last Anchor
     last_gt_time = max(n[0] for n in gt_notes)
